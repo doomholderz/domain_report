@@ -2,47 +2,71 @@ from tld import get_tld
 import math
 from Levenshtein import distance
 
+# breakdown_domain: breakdown of twetter.account-management.f53dw.io results in
+# innerdomain = "f53dw"
+# subdomain = ["twetter", "account-management"]
+# tld = "io"
 def breakdown_domain(domain):
-	# i.e. breakdown of twetter.account-management.f53dw.io results in
-	# innerdomain = "f53dw"
-	# subdomain = ["twetter", "account-management"]
-	# tld = "io"
+	# use get_tld with all the params it needs to hum along
 	domain_parts = get_tld(domain, as_object=True, fail_silently=True, fix_protocol=True)
+	
+	# break subdomain into an array of its components (i.e. a.x.y = ["a", "x", "y"])
 	subdomain = domain_parts.subdomain.split(".")
+	
+	# create domain object with all components derived from get_tld
 	domain = {"domain": '.'.join([domain_parts.domain, domain_parts.subdomain]), "innerdomain": domain_parts.domain, "subdomains": subdomain, "tld": domain_parts.tld}
 	return domain
 
+# shannon entropy to calculate entropy of full domain (high entropy typically
+# is associated with more malicious domains)
 def entropy(domain):
     prob = [ float(domain.count(i)) / len(domain) for i in dict.fromkeys(list(domain))]
     entropy = -sum([p * math.log(p) / math.log(2.0) for p in prob])
     return entropy
 
+# levenshtein distance, finding words that match/closely impersonate other words
+# typical of domains to impersonate other domains (i.e. twetter instead of twitter)
 def lev_distance(domain):
+	# grab words we want to find matches/impersonations against from suspicious.txt
 	suspicious = open('suspicious.txt', 'r')
+	
+	# we will be returning an object of impersonating/matching words
+	lev_return = {"impersonating": [], "matching": []}
 	impersonating_words = []
 	found_words = []
-	lev_return = {"impersonating": [], "matching": []}
+	
 	for item in suspicious:
 		for word in domain:
-			#print(word + " " + item + " " + str(distance(str(word), str(item))))
+			# distance == 2 typically means one letter out (i.e. paypol)
 			if distance(str(word), str(item)) == 2:
-				#print(word + " impersonating word " + item)
 				impersonating_words.append(word)
+			# distance <= 1 typically means a bang-on match
 			elif distance(str(word), str(item)) <= 1:
-				#print(word + " matches " + item)
 				found_words.append(word)
+
+	# assign impersonating/matching arrays to the lev_return object, and return
 	lev_return['impersonating'] = impersonating_words
 	lev_return['matching'] = found_words
 	return lev_return
 
 def main(domain):
+	# initialize the object that will store all enrichment, and be returned 
+	domain_enrichment_obj = {}
+
+	# breakdown the domain into its components (domain, subdomains, innerdomain, tld)
 	domain = breakdown_domain(example_domain)
+	domain_enrichment_obj['domain'] = domain
+
+	# get the entropy of the overall domain
 	domain_entropy = entropy(domain['domain'])
-	domain_enrichment_obj = {"domain": domain, "domainEntropy": domain_entropy}
-	print(domain['subdomains'])
+	domain_enrichment_obj['domainEntropy'] = domain_entropy
+
+	# get impersonating/matching words in domain and subdomains
 	subdomain_lev = lev_distance(domain['subdomains'])
 	domain_lev = lev_distance(domain['domain'])
 	domain_enrichment_obj['levDistance'] = {"innerDomain": domain_lev, "subdomains": subdomain_lev}
+	
+	# finally we can return the domain enrichment object with all data within
 	return domain_enrichment_obj
 
 example_domain = "twetter.account-management.f53dw.io"
