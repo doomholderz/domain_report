@@ -38,4 +38,4 @@ def subdomains(domain):
 			
 	return subdomains_obj
 
-print(subdomains('thoughtmachine.net'))
+print(subdomains(''))
