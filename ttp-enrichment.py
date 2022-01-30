@@ -1,6 +1,7 @@
 from tld import get_tld
 import math
 from Levenshtein import distance
+import re
 
 # breakdown_domain: breakdown of twetter.account-management.f53dw.io results in
 # innerdomain = "f53dw"
@@ -37,9 +38,11 @@ def lev_distance(domain):
 	
 	for item in suspicious:
 		for word in domain:
+
 			# distance == 2 typically means one letter out (i.e. paypol)
 			if distance(str(word), str(item)) == 2:
 				impersonating_words.append(word)
+
 			# distance <= 1 typically means a bang-on match
 			elif distance(str(word), str(item)) <= 1:
 				found_words.append(word)
@@ -48,6 +51,23 @@ def lev_distance(domain):
 	lev_return['impersonating'] = impersonating_words
 	lev_return['matching'] = found_words
 	return lev_return
+
+# searches for usage of tld strings within domain/subdomains, as this is spoopy
+def fake_tlds(domain_array):
+	fake_tlds_array = []
+
+	# iterate over the domain/subdomain array parameter
+	for string in domain_array:
+
+		# split string based on non A-Z characters (i.e. test.y-a = ['test', 'y', 'a'])
+		for word in re.split("\W+", string):
+
+			# if the word is one of these TLDs, append to the array
+			# could absract this list to a .txt file, but can I be bothered
+			if word in ['com', 'co', 'uk', 'net', 'org', 'io']:
+				fake_tlds_array.append(word)
+
+	return fake_tlds_array
 
 def main(domain):
 	# initialize the object that will store all enrichment, and be returned 
@@ -63,11 +83,16 @@ def main(domain):
 
 	# get impersonating/matching words in domain and subdomains
 	subdomain_lev = lev_distance(domain['subdomains'])
-	domain_lev = lev_distance(domain['domain'])
+	domain_lev = lev_distance(domain['innerdomain'])
 	domain_enrichment_obj['levDistance'] = {"innerDomain": domain_lev, "subdomains": subdomain_lev}
 	
+	# get tlds nested within inner domain/subdomains
+	subdomain_tlds = fake_tlds(domain['subdomains'])
+	domain_tlds = fake_tlds([domain['innerdomain']])
+	domain_enrichment_obj['fakeTlds'] = {"innerDomain": domain_tlds, "subdomains": subdomain_tlds}
+
 	# finally we can return the domain enrichment object with all data within
 	return domain_enrichment_obj
 
-example_domain = "twetter.account-management.f53dw.io"
+example_domain = "twetter.account-management-com.f53dw-net.io"
 print(main(example_domain))
