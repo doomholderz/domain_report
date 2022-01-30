@@ -8,3 +8,6 @@
 5. jarm signature fingerprinting to cross-reference against c2 jarms
 6. google dorking
 7. builtwith api lookup: get tech profile of domain (and potentially subdomains depending on API limitations)
+
+UPDATES
+censys api has a very low quota limit :(
