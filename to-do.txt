@@ -4,7 +4,7 @@
   a. shannon entropy on domain string [x] [x]
   b. levenshtein distance for domain/subdomains against standard impersonated strings
   c. check for cheeky little tlds sprinkled through the domain and subdomains (i.e. paypal.com.account-manager.io) [x]
-4. rdap api lookup to find registrant/registrar info
+4. rdap api lookup to find registrant/registrar info [x]
 5. jarm signature fingerprinting to cross-reference against c2 jarms
 6. google dorking
 7. builtwith api lookup: get tech profile of domain (and potentially subdomains depending on API limitations)
