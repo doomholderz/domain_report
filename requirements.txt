@@ -1,2 +1,5 @@
 Levenshtein==0.17.0
 tld==0.12.6
+arrow==1.2.2
+censys==2.1.2
+requests==2.27.1
