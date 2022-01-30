@@ -1,0 +1,2 @@
+Levenshtein==0.17.0
+tld==0.12.6
