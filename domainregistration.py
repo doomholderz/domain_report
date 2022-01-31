@@ -12,7 +12,7 @@ def rdap(domain, tld):
 	# store registration events in initial_registration
 	initial_registration = res2.json()['events']
 
-	# for each of the registration events
+	# for each of the registration 
 	for i in initial_registration:
 
 		if i['eventAction'] == 'registration':
@@ -71,7 +71,7 @@ def rdap(domain, tld):
 						address = ""
 						for string in address_array:
 							if string != "":
-								address += string + " "
+								address += str(string) + " "
 						rdap_object['registrant']['address'] = address
 					if 'tel' in y:
 						telephone = y[-1]
@@ -84,4 +84,4 @@ def rdap(domain, tld):
 	return rdap_object
 
 # we're using a domain from the most recent NCSC malicious domain list
-print(rdap('4MATIONDRILLING.COM', 'com'))
+#print(rdap('4MATIONDRILLING.COM', 'com'))
