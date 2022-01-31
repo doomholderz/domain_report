@@ -23,28 +23,32 @@ def subdomains(domain, censys_id, censys_secret, censys_limit):
 	for cert in cert_json['results']:
 		count += 1
 		if count <= censys_limit:
-			# get the certificate name (subdomain), which we'll use as a key in this kv-pair
-			cert_name = cert['parsed.subject_dn'].split("CN=")[-1]
+			try:
+				print(str(count))
+				# get the certificate name (subdomain), which we'll use as a key in this kv-pair
+				cert_name = cert['parsed.subject_dn'].split("CN=")[-1]
 			
-			# get the sha256 encoded fingerprint of the certificate (used for searching)
-			cert2 = cert['parsed.fingerprint_sha256']
+				# get the sha256 encoded fingerprint of the certificate (used for searching)
+				cert2 = cert['parsed.fingerprint_sha256']
 
-			# censys API request to get information about this certificate
-			res2 = requests.get(API_URL + "/v1/view/certificates/" + cert2, auth=(censys_id, censys_secret))
-			res2j = res2.json()
+				# censys API request to get information about this certificate
+				res2 = requests.get(API_URL + "/v1/view/certificates/" + cert2, auth=(censys_id, censys_secret))
+				res2j = res2.json()
 			
-			# harvest and store additional data pertaining to the subdomain
-			common_name = res2j['parsed']['subject']['common_name']
-			issuer = res2j['parsed']['issuer']['common_name']
-			start = res2j['parsed']['validity']['start']
-			end = res2j['parsed']['validity']['end']
-			SAN = res2j['parsed']['extensions']['subject_alt_name']['dns_names']
-			subdomains_obj[cert_name] = {}
-			subdomains_obj[cert_name]['certificateStartDate'] = start
-			subdomains_obj[cert_name]['certificateEndDate'] = end
-			subdomains_obj[cert_name]['issuer'] = issuer
-			subdomains_obj[cert_name]['domainNames'] = common_name
-			subdomains_obj[cert_name]['san'] = SAN
+				# harvest and store additional data pertaining to the subdomain
+				common_name = res2j['parsed']['subject']['common_name']
+				issuer = res2j['parsed']['issuer']['common_name']
+				start = res2j['parsed']['validity']['start']
+				end = res2j['parsed']['validity']['end']
+				SAN = res2j['parsed']['extensions']['subject_alt_name']['dns_names']
+				subdomains_obj[cert_name] = {}
+				subdomains_obj[cert_name]['certificateStartDate'] = start
+				subdomains_obj[cert_name]['certificateEndDate'] = end
+				subdomains_obj[cert_name]['issuer'] = issuer
+				subdomains_obj[cert_name]['domainNames'] = common_name
+				subdomains_obj[cert_name]['san'] = SAN
+			except requests.exceptions.SSLError as e:
+				print("requests.exceptions.SSLError")
 			
 	return subdomains_obj
 
