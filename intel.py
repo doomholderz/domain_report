@@ -4,6 +4,8 @@ from domainregistration import *
 import os
 import re
 
+return_obj = {'censysLookup': {}, 'domainEnrichment': {}, 'ttpEnrichment': {}}
+
 # use this for tidying up the shop
 def clear_console():
     command = 'clear'
