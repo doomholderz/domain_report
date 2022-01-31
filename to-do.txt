@@ -1,13 +1,12 @@
-1. censys api lookup for subdomains: initial documentation read makes this look like a lookup domain > get TLS cert > lookup cert
-2. censys api lookup for ips: p sure just looking up domain should give us a load of IPs, we'll see...
+1. censys api lookup for subdomains: initial documentation read makes this look like a lookup domain > get TLS cert > lookup cert [x]
+2. censys api lookup for ips: p sure just looking up domain should give us a load of IPs, we'll see... [x]
 3. TTP-based domain enrichment: not exactly a requirement, but if this is going to be gathering intel it'd be dumb not to add some in: [x]
   a. shannon entropy on domain string [x] [x]
   b. levenshtein distance for domain/subdomains against standard impersonated strings
   c. check for cheeky little tlds sprinkled through the domain and subdomains (i.e. paypal.com.account-manager.io) [x]
 4. rdap api lookup to find registrant/registrar info [x]
-5. jarm signature fingerprinting to cross-reference against c2 jarms
-6. google dorking
-7. builtwith api lookup: get tech profile of domain (and potentially subdomains depending on API limitations)
+5. jarm signature fingerprinting to cross-reference against c2 jarms 
+6. builtwith api lookup: get tech profile of domain (and potentially subdomains depending on API limitations)
 
 UPDATES
 censys api has a very low quota limit :(
