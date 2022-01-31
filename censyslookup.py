@@ -3,11 +3,9 @@ import requests
 import arrow
 import json
 
-CENSYS_API_ID = ""
-CENSYS_API_SECRET = ""
 API_URL = "https://search.censys.io/api"
 
-def subdomains(domain):
+def subdomains(domain, censys_id, censys_secret, censys_limit):
 	# using count for rate limiting
 	count = 0
 
@@ -18,13 +16,13 @@ def subdomains(domain):
 	subdomains_obj = {}
 
 	# get all certificates that even smell of 'domain'
-	res = requests.post(API_URL + "/v1/search/certificates", json = params, auth=(CENSYS_API_ID, CENSYS_API_SECRET))
+	res = requests.post(API_URL + "/v1/search/certificates", json = params, auth=(censys_id, censys_secret))
 	cert_json = res.json()
 	
 	# for each certificate relating to '*domain*', harvest information
 	for cert in cert_json['results']:
 		count += 1
-		if count < 50:
+		if count <= censys_limit:
 			# get the certificate name (subdomain), which we'll use as a key in this kv-pair
 			cert_name = cert['parsed.subject_dn'].split("CN=")[-1]
 			
@@ -32,7 +30,7 @@ def subdomains(domain):
 			cert2 = cert['parsed.fingerprint_sha256']
 
 			# censys API request to get information about this certificate
-			res2 = requests.get(API_URL + "/v1/view/certificates/" + cert2, auth=(CENSYS_API_ID, CENSYS_API_SECRET))
+			res2 = requests.get(API_URL + "/v1/view/certificates/" + cert2, auth=(censys_id, censys_secret))
 			res2j = res2.json()
 			
 			# harvest and store additional data pertaining to the subdomain
@@ -50,12 +48,12 @@ def subdomains(domain):
 			
 	return subdomains_obj
 
-def ips(domain):
+def ips(domain, censys_id, censys_secret):
 	# initialise the ips object, where we'll store info about related ips to domain
 	ips_obj = {}
 
 	# GET request using censys to get information about the domain
-	res = requests.get(API_URL + "/v2/hosts/search?q=" + domain + " and service.service_name='HTTP'", auth=(CENSYS_API_ID, CENSYS_API_SECRET))
+	res = requests.get(API_URL + "/v2/hosts/search?q=" + domain + " and service.service_name='HTTP'", auth=(censys_id, censys_secret))
 	
 	# for each ip found relating to the domain
 	for hit in res.json()['result']['hits']:
@@ -69,7 +67,7 @@ def ips(domain):
 		ips_obj[hit['ip']]['asn'] = {'asnId': hit['autonomous_system']['asn'], 'name': hit['autonomous_system']['name']}
 		
 		# now we do a further API call to get more information about the ip not initially available
-		res2 = requests.get(API_URL + "/v2/hosts/" + hit['ip'], auth=(CENSYS_API_ID, CENSYS_API_SECRET)).json()['result']['services']
+		res2 = requests.get(API_URL + "/v2/hosts/" + hit['ip'], auth=(censys_id, censys_secret)).json()['result']['services']
 		
 		# for each of the services running on this IP (will only be HTTP/HTTPS)
 		for service in res2:
@@ -87,5 +85,5 @@ def ips(domain):
 			
 	return(ips_obj)
 
-subdomains_obj = subdomains('')
-ips_obj = ips('')
+#subdomains_obj = subdomains('')
+#ips_obj = ips('')
