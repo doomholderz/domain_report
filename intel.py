@@ -4,14 +4,14 @@ from domainregistration import *
 import os
 import re
 
-return_obj = {'censysLookup': {}, 'domainEnrichment': {}, 'ttpEnrichment': {}}
-
 # use this for tidying up the shop
 def clear_console():
     command = 'clear'
     if os.name in ('nt', 'dos'): 
         command = 'cls'
     os.system(command)
+
+return_obj = {'censysLookup': {}, 'domainEnrichment': {}, 'ttpEnrichment': {}}
 
 def main():
 	clear_console()
@@ -60,8 +60,11 @@ def main():
 	
 		# if it's ttp enrichment picked, we can just go ahead and run the script
 		elif int(option) == 3:
-			ttp_obj = main(domain)
+			ttp_obj = ttp_main(domain)
 			return_obj['ttpEnrichment'] = ttp_obj
+
+	print("\n\n")
+	print(return_obj)
 
 # function for checking the user-picked options are valid
 def get_options():
