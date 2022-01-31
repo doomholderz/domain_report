@@ -69,7 +69,7 @@ def fake_tlds(domain_array):
 
 	return fake_tlds_array
 
-def main(domain):
+def ttp_main(example_domain):
 	# initialize the object that will store all enrichment, and be returned 
 	domain_enrichment_obj = {}
 
@@ -94,5 +94,5 @@ def main(domain):
 	# finally we can return the domain enrichment object with all data within
 	return domain_enrichment_obj
 
-example_domain = "twetter.account-management-com.f53dw-net.io"
-print(main(example_domain))
+#example_domain = "twetter.account-management-com.f53dw-net.io"
+#print(main(example_domain))
